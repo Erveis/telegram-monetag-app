@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monetag Telegram App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const Eye = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+        );
+
+        const DollarSign = () => (
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+
+        const Award = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+        );
+
+        const TrendingUp = () => (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+        );
+
+        function MonetagTelegramApp() {
+            const [balance, setBalance] = useState(0);
+            const [adsViewed, setAdsViewed] = useState(0);
+            const [isAdLoading, setIsAdLoading] = useState(false);
+            const [showReward, setShowReward] = useState(false);
+            const [dailyLimit] = useState(20);
+
+            useEffect(() => {
+                if (window.Telegram?.WebApp) {
+                    const tg = window.Telegram.WebApp;
+                    tg.ready();
+                    tg.expand();
+                    tg.MainButton.hide();
+                }
+            }, []);
+
+            const handleWatchAd = () => {
+                if (adsViewed >= dailyLimit) {
+                    alert('Вы достигли дневного лимита просмотров!');
+                    return;
+                }
+
+                setIsAdLoading(true);
+                setShowReward(false);
+
+                setTimeout(() => {
+                    const reward = (Math.random() * 0.05 + 0.01).toFixed(3);
+                    
+                    setBalance(prev => parseFloat((prev + parseFloat(reward)).toFixed(3)));
+                    setAdsViewed(prev => prev + 1);
+                    setIsAdLoading(false);
+                    setShowReward(true);
+
+                    setTimeout(() => setShowReward(false), 3000);
+                }, 2000);
+            };
+
+            const progress = (adsViewed / dailyLimit) * 100;
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900 text-white p-4">
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-6 shadow-xl">
+                        <div className="flex items-center justify-between mb-4">
+                            <h1 className="text-2xl font-bold">Monetag Viewer</h1>
+                            <DollarSign />
+                        </div>
+                        
+                        <div className="bg-white/10 rounded-xl p-4">
+                            <p className="text-sm text-gray-300 mb-1">Ваш баланс</p>
+                            <p className="text-4xl font-bold text-yellow-400">${balance.toFixed(3)}</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 shadow-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Eye />
+                                <p className="text-sm text-gray-300">Просмотрено</p>
+                            </div>
+                            <p className="text-2xl font-bold">{adsViewed}</p>
+                        </div>
+
+                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 shadow-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Award />
+                                <p className="text-sm text-gray-300">Осталось</p>
+                            </div>
+                            <p className="text-2xl font-bold">{dailyLimit - adsViewed}</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-6 shadow-xl">
+                        <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm text-gray-300">Дневной прогресс</p>
+                            <p className="text-sm font-semibold">{Math.round(progress)}%</p>
+                        </div>
+                        <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">
+                            <div 
+                                className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-500"
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleWatchAd}
+                        disabled={isAdLoading || adsViewed >= dailyLimit}
+                        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed rounded-2xl p-6 font-bold text-xl shadow-2xl transition-all transform hover:scale-105 active:scale-95 mb-4"
+                    >
+                        {isAdLoading ? (
+                            <div className="flex items-center justify-center gap-3">
+                                <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>Загрузка рекламы...</span>
+                            </div>
+                        ) : adsViewed >= dailyLimit ? (
+                            'Лимит достигнут'
+                        ) : (
+                            <div className="flex items-center justify-center gap-3">
+                                <Eye />
+                                <span>Смотреть рекламу</span>
+                            </div>
+                        )}
+                    </button>
+
+                    {showReward && (
+                        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+                            <div className="bg-green-500 text-white px-8 py-4 rounded-2xl shadow-2xl animate-bounce">
+                                <div className="flex items-center gap-3">
+                                    <TrendingUp />
+                                    <span className="text-xl font-bold">+${(0.03).toFixed(3)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
+                        <h3 className="font-bold mb-3 text-lg">💡 Как это работает?</h3>
+                        <ul className="space-y-2 text-sm text-gray-300">
+                            <li>• Смотрите рекламу и зарабатывайте</li>
+                            <li>• Каждое объявление приносит $0.01-0.05</li>
+                            <li>• Лимит: {dailyLimit} просмотров в день</li>
+                            <li>• Выплаты доступны от $5</li>
+                        </ul>
+                    </div>
+
+                    <div className="mt-6 text-center text-sm text-gray-400">
+                        <p>Powered by Monetag</p>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<MonetagTelegramApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
